@@ -1,6 +1,6 @@
-from .User import User
 from .Appointment import Appointment
 from .MedicalImage import MedicalImage
 from .MedicalRecord import MedicalRecord
+from .User import User, UserRole
 
-__all__ = ["User", "Appointment", "MedicalImage", "MedicalRecord"]
+__all__ = ["User", "UserRole", "Appointment", "MedicalImage", "MedicalRecord"]

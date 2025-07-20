@@ -3,6 +3,9 @@ uvicorn[standard]
 sqlmodel
 psycopg2-binary
 python-multipart
-python-dotenv
 pydantic
+pydantic[email]
+pydantic-settings
 boto3
+passlib[bcrypt]
+python-jose[cryptography]

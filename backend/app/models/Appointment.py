@@ -1,8 +1,10 @@
-from sqlmodel import SQLModel, Field
 from datetime import datetime
 from typing import Optional
 
-class Appointment(SQLModel, table=True):
+from sqlmodel import Field, SQLModel
+
+
+class Appointment(SQLModel, table=True):  # type: ignore[misc, call-arg]
     __tablename__ = "appointment"
     id: int = Field(default=None, primary_key=True)
     patient_id: int = Field(foreign_key="user.id")

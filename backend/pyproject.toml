@@ -8,9 +8,17 @@ profile = "black"
 [tool.ruff]
 line-length = 88
 target-version = "py311"
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "B"]
 ignore = ["E501"]
 
 [tool.mypy]
 ignore_missing_imports = true
 strict = true
+plugins = ["sqlmypy"]
+disable_error_code = ["misc"]
+
+[tool.mypy.overrides]
+"sqlalchemy.*" = { ignore_missing_imports = true }
+"sqlmodel.*" = { ignore_missing_imports = true }

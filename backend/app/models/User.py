@@ -1,14 +1,17 @@
-from sqlmodel import SQLModel, Field
 from datetime import datetime
-from typing import Optional
 from enum import Enum
+from typing import Optional
+
+from sqlmodel import Field, SQLModel
+
 
 class UserRole(str, Enum):
     ADMIN = "admin"
     DOCTOR = "doctor"
     PATIENT = "patient"
 
-class User(SQLModel, table=True):
+
+class User(SQLModel, table=True):  # type: ignore[misc, call-arg]
     __tablename__ = "user"
     id: int = Field(default=None, primary_key=True)
     email: str = Field(max_length=100, unique=True)

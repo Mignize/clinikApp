@@ -13,13 +13,13 @@ services:
 
   app:
     build: .
-    container_name: fastapi-app
+    env_file:
+      - .env
+    container_name: clinik_app
     ports:
       - "8000:8000"
     depends_on:
       - db
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/medical_db
     volumes:
       - ./app:/code/app
 
