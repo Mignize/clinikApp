@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 
 from app.deps.auth import require_admin
-from app.schemas import UserRead
-from app.types.Annotated import CurrentUser
+from app.schemas.user import UserRead
+from app.types.annotated import CurrentUser
 
 router = APIRouter(prefix="/user", tags=["user"])
 

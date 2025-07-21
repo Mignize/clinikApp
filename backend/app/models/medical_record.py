@@ -12,3 +12,6 @@ class MedicalRecord(SQLModel, table=True):  # type: ignore[misc, call-arg]
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     notes: Optional[str] = Field(default=None, max_length=500)
+    diagnosis: Optional[str] = Field(default=None, max_length=500)
+    symptoms: Optional[str] = Field(default=None, max_length=500)
+    treatment: Optional[str] = Field(default=None, max_length=500)

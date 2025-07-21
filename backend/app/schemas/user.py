@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 
@@ -26,6 +27,9 @@ class UserRead(BaseModel):
     email: EmailStr
     full_name: Optional[str]
     role: UserRole
+    is_active: bool
+    is_verified: bool
+    created_at: datetime
 
     class Config:
         from_attributes = True

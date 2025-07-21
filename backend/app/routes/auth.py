@@ -3,7 +3,7 @@ from sqlmodel import select
 
 from app.deps.auth import SessionDep
 from app.models import User
-from app.schemas import Token, UserCreate, UserLogin
+from app.schemas.user import Token, UserCreate, UserLogin
 from app.utils.security import create_access_token, hash_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])

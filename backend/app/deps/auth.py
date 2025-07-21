@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends, HTTPException
 
 from app.models import User, UserRole
-from app.types.Session import SessionDep, TokenDep
+from app.types.session import SessionDep, TokenDep
 from app.utils.security import decode_token
 
 
