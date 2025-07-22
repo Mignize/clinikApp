@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root',
 })
 export class UserService {
-  private apiUrl = environment.API_URL + '/user';
+  private apiUrl = environment.API_URL + '/user/';
 
   constructor(private http: HttpClient) {}
 

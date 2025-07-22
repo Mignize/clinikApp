@@ -25,10 +25,7 @@ export class AuthService {
 
   loginAdmin(data: { email: string; password: string }) {
     return this.http
-      .post<{ access_token: string }>(
-        `${environment.API_URL}/auth/login-admin`,
-        data
-      )
+      .post<{ access_token: string }>(`${this.api}/login-admin`, data)
       .pipe(
         tap((res) => {
           localStorage.setItem('token', res.access_token);
@@ -38,10 +35,7 @@ export class AuthService {
 
   loginPatient(data: { email: string; password: string }) {
     return this.http
-      .post<{ access_token: string }>(
-        `${environment.API_URL}/auth/login-patient`,
-        data
-      )
+      .post<{ access_token: string }>(`${this.api}/login-patient`, data)
       .pipe(
         tap((res) => {
           localStorage.setItem('token', res.access_token);
@@ -56,10 +50,7 @@ export class AuthService {
     clinic_name: string;
   }) {
     return this.http
-      .post<{ access_token: string }>(
-        `${environment.API_URL}/auth/register-admin`,
-        data
-      )
+      .post<{ access_token: string }>(`${this.api}/register-admin`, data)
       .pipe(
         tap((res) => {
           localStorage.setItem('token', res.access_token);
@@ -74,10 +65,7 @@ export class AuthService {
     clinic_id: number;
   }) {
     return this.http
-      .post<{ access_token: string }>(
-        `${environment.API_URL}/auth/register-patient`,
-        data
-      )
+      .post<{ access_token: string }>(`${this.api}/register-patient`, data)
       .pipe(
         tap((res) => {
           localStorage.setItem('token', res.access_token);

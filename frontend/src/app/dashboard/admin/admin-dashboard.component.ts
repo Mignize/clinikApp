@@ -195,7 +195,7 @@ export class AdminDashboardComponent implements OnInit {
     this.addUserError.set(null);
     this.http
       .post(
-        `${environment.API_URL}/user/create-admin-or-doctor`,
+        `${environment.API_URL}/user/create-admin-or-doctor/`,
         this.addUserForm.value
       )
       .subscribe({
