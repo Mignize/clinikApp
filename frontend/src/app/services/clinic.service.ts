@@ -8,19 +8,11 @@ import { environment } from '../../environments/environment';
   providedIn: 'root',
 })
 export class ClinicService {
-  private apiUrl = environment.API_URL + '/appointments';
+  private apiUrl = environment.API_URL + '/clinics';
 
   constructor(private http: HttpClient) {}
 
   getClinics(params?: any): Observable<Clinic[]> {
     return this.http.get<Clinic[]>(this.apiUrl, { params });
-  }
-
-  getClinicById(id: string): Observable<Clinic> {
-    return this.http.get<Clinic>(`${this.apiUrl}/${id}`);
-  }
-
-  createClinic(data: Partial<Clinic>): Observable<Clinic> {
-    return this.http.post<Clinic>(this.apiUrl, data);
   }
 }
