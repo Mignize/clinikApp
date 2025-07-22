@@ -6,6 +6,7 @@ export interface MedicalRecord {
   symptoms?: string;
   summary?: string;
   doctor_id: number;
+  doctor_name: string;
   date: string;
   created_at: string;
 }

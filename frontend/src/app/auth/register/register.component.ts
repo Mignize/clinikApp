@@ -11,6 +11,7 @@ import { AuthService } from '../auth.service';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { AppBackButtonComponent } from '../../shared/app-back-button.component';
 
 @Component({
   standalone: true,
@@ -22,6 +23,7 @@ import { MatCardModule } from '@angular/material/card';
     MatCardModule,
     MatSnackBarModule,
     RouterModule,
+    AppBackButtonComponent,
   ],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],

@@ -62,7 +62,7 @@ export class PatientDashboardComponent implements OnInit {
   medicalRecord = signal<MedicalRecord | null>(null);
   medicalRecordLoading = signal(false);
   medicalRecordError = signal<string | null>(null);
-
+  showMedicalRecordDetail = signal(false);
   completedAppointments = computed(() =>
     this.appointments().filter((a) => a.status === 'completed')
   );
@@ -114,9 +114,7 @@ export class PatientDashboardComponent implements OnInit {
     this.http
       .get<any>(`${environment.API_URL}/patients/me`)
       .subscribe((profile) => {
-        this.medicalRecords.set(
-          (profile.medical_records || []).map((id: number) => ({ id }))
-        );
+        this.medicalRecords.set(profile.medical_records);
       });
   }
 
@@ -218,5 +216,10 @@ export class PatientDashboardComponent implements OnInit {
     );
 
     return doctor?.available_slots || [];
+  }
+
+  openMedicalRecordDetail(record: MedicalRecord) {
+    this.medicalRecord.set(record);
+    this.showMedicalRecordDetail.set(true);
   }
 }

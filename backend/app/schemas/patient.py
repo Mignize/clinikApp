@@ -3,6 +3,9 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from app.models.medical_image import MedicalImage
+from app.schemas.medical_record import MedicalRecordRead
+
 
 class PatientProfile(BaseModel):
     id: int
@@ -14,6 +17,15 @@ class PatientProfile(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class PatientProfileOwn(BaseModel):
+    id: int
+    full_name: Optional[str]
+    email: str
+    created_at: datetime
+    medical_records: list[MedicalRecordRead]
+    medical_images: list[MedicalImage]
 
 
 class PatientRegisterRequest(BaseModel):

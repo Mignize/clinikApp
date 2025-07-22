@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from sqlmodel import select
 
 from app.deps.auth import SessionDep
-from app.models import Clinic
+from app.models.clinic import Clinic
 from app.schemas.clinic import ClinicRead
 
 router = APIRouter(prefix="/clinics", tags=["clinics"])

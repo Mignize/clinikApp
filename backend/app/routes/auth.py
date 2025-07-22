@@ -2,7 +2,8 @@ from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 
 from app.deps.auth import SessionDep
-from app.models import Clinic, User, UserRole
+from app.models.clinic import Clinic
+from app.models.user import User, UserRole
 from app.schemas.doctor import AdminRegisterRequest
 from app.schemas.patient import PatientRegisterRequest
 from app.schemas.user import Token, UserLogin

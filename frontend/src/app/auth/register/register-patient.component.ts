@@ -13,6 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { Clinic } from '../../types/clinic.type';
+import { AppBackButtonComponent } from '../../shared/app-back-button.component';
 
 @Component({
   standalone: true,
@@ -25,6 +26,7 @@ import { Clinic } from '../../types/clinic.type';
     MatSnackBarModule,
     MatSelectModule,
     RouterModule,
+    AppBackButtonComponent,
   ],
   templateUrl: './register-patient.component.html',
   styleUrls: ['./register.component.css'],

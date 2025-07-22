@@ -209,20 +209,21 @@
             <tr class="bg-purple-100">
               <th class="p-2">Fecha</th>
               <th class="p-2">Doctor</th>
-              <th class="p-2">Resumen</th>
+              <th class="p-2">Notas</th>
               <th class="p-2">Acciones</th>
             </tr>
           </thead>
           <tbody>
             @for (record of medicalRecords(); track record.id) {
             <tr class="border-b hover:bg-purple-50 transition-colors group">
-              <td class="p-2">{{ record.date | date : "shortDate" }}</td>
-              <td class="p-2">ID {{ record.doctor_id }}</td>
-              <td class="p-2 truncate max-w-xs">
-                {{ record.summary || record.notes || "-" }}
-              </td>
+              <td class="p-2">{{ record.created_at | date : "shortDate" }}</td>
+              <td class="p-2">{{ record.doctor_name }}</td>
+              <td class="p-2 truncate max-w-xs">{{ record.notes || "-" }}</td>
               <td class="p-2 text-right">
-                <app-button variant="secondary" size="sm"
+                <app-button
+                  variant="secondary"
+                  size="sm"
+                  (onClick)="openMedicalRecordDetail(record)"
                   >Ver Detalle</app-button
                 >
               </td>
@@ -417,5 +418,41 @@
     >
   </div>
   }
+</app-modal>
+} @if (showMedicalRecordDetail()) {
+<app-modal
+  [open]="showMedicalRecordDetail()"
+  (close)="showMedicalRecordDetail.set(false)"
+>
+  <h3 class="text-xl font-bold text-purple-700 mb-4">
+    Detalle de Registro Médico
+  </h3>
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Fecha:</span>
+    {{
+      medicalRecord()?.created_at
+        | date : "EEEE, d 'de' MMMM 'de' y - h:mm a" : undefined : "es"
+    }}
+  </div>
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Doctor:</span>
+    {{ medicalRecord()?.doctor_name }}
+  </div>
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Diagnóstico:</span>
+    {{ medicalRecord()?.diagnosis || "-" }}
+  </div>
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Notas:</span>
+    {{ medicalRecord()?.notes || "-" }}
+  </div>
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Tratamiento:</span>
+    {{ medicalRecord()?.treatment || "-" }}
+  </div>
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Síntomas:</span>
+    {{ medicalRecord()?.symptoms || "-" }}
+  </div>
 </app-modal>
 }
