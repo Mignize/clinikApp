@@ -1,12 +1,464 @@
 <div
-    class="min-h-screen bg-gradient-to-br from-blue-200 via-purple-100 to-white font-inter flex flex-col items-center justify-center">
-    <div class="bg-white rounded-xl shadow-lg p-10 max-w-xl w-full text-center animate-fade-in">
-        <h2 class="text-3xl font-bold mb-4 text-purple-900 drop-shadow-lg font-inter">
-            Bienvenido al Dashboard de Doctor
-        </h2>
-        <p class="text-gray-800 text-lg">
-            Aquí podrás ver tus pacientes, gestionar citas y acceder a historiales
-            médicos.
-        </p>
+  class="min-h-screen bg-gradient-to-br from-blue-200 via-purple-100 to-white font-inter flex flex-col items-center justify-center"
+>
+  <div
+    class="bg-white rounded-xl shadow-lg p-10 max-w-3xl w-full text-center animate-fade-in"
+  >
+    <h2
+      class="text-3xl font-bold mb-4 text-purple-900 drop-shadow-lg font-inter"
+    >
+      ¡Bienvenido, {{ user()?.full_name || user()?.email }}!
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <app-card>
+        <span class="text-2xl font-bold text-purple-800">{{
+          totalTodayAppointments()
+        }}</span>
+        <span class="text-xs text-purple-700 font-semibold mt-1"
+          >Citas hoy</span
+        >
+      </app-card>
+      <app-card>
+        <span class="text-2xl font-bold text-blue-800">{{
+          totalPatients()
+        }}</span>
+        <span class="text-xs text-blue-700 font-semibold mt-1"
+          >Pacientes asignados</span
+        >
+      </app-card>
+      <app-card>
+        <span class="text-2xl font-bold text-green-800">{{
+          totalAppointments()
+        }}</span>
+        <span class="text-xs text-green-700 font-semibold mt-1"
+          >Total citas</span
+        >
+      </app-card>
     </div>
+
+    <div class="mb-10">
+      <h3 class="text-xl font-semibold text-purple-700 mb-4 text-left">
+        Citas del día
+      </h3>
+      @if (todayAppointments().length > 0) {
+      <div class="overflow-x-auto rounded-xl shadow-lg">
+        <table class="w-full text-left border-collapse bg-white">
+          <thead>
+            <tr class="bg-purple-100">
+              <th class="p-2">Hora</th>
+              <th class="p-2">Paciente</th>
+              <th class="p-2">Estado</th>
+              <th class="p-2">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (appt of todayAppointments(); track appt.id) {
+            <tr class="border-b hover:bg-purple-50 transition-colors group">
+              <td class="p-2 font-semibold">
+                {{ appt.appointment_date | dateFormat }}
+              </td>
+              <td class="p-2">{{ appt.patient_name }}</td>
+              <td class="p-2">
+                <app-badge
+                  [type]="
+                    appt.status === 'scheduled'
+                      ? 'warning'
+                      : appt.status === 'completed'
+                      ? 'success'
+                      : 'danger'
+                  "
+                >
+                  {{ appt.status | statusLabel }}
+                </app-badge>
+              </td>
+              <td class="p-2 text-right">
+                <app-button
+                  variant="secondary"
+                  size="sm"
+                  (onClick)="openAppointmentDetail(appt)"
+                  >Ver Detalle</app-button
+                >
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      } @else {
+      <div class="text-gray-500">No tienes citas para hoy.</div>
+      }
+    </div>
+
+    <div class="mb-10">
+      <h3 class="text-xl font-semibold text-purple-700 mb-4 text-left">
+        Pacientes asignados
+      </h3>
+      @if (patients().length > 0) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (patient of patients(); track patient.id) {
+        <app-card
+          class="hover:scale-105 hover:shadow-2xl transition-transform cursor-pointer group"
+        >
+          <span
+            class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-blue-200 to-purple-400 text-white font-bold text-2xl shadow mb-2 group-hover:scale-110 transition-transform"
+          >
+            {{ patient.full_name ? patient.full_name[0] : patient.email[0] }}
+          </span>
+          <div class="font-semibold text-lg text-gray-900 mb-1">
+            {{ patient.full_name }}
+          </div>
+          <div class="text-sm text-gray-600 mb-2">{{ patient.email }}</div>
+          <app-button
+            variant="secondary"
+            size="sm"
+            (onClick)="$event.stopPropagation(); openPatientHistory(patient)"
+            >Ver Historial</app-button
+          >
+        </app-card>
+        }
+      </div>
+      } @else {
+      <div class="text-gray-500">No tienes pacientes asignados.</div>
+      }
+    </div>
+
+    <div class="mb-10">
+      <h3 class="text-xl font-semibold text-purple-700 mb-4 text-left">
+        Próximas citas
+      </h3>
+      @if (upcomingAppointments().length > 0) {
+      <div class="overflow-x-auto rounded-xl shadow-lg">
+        <table class="w-full text-left border-collapse bg-white">
+          <thead>
+            <tr class="bg-purple-100">
+              <th class="p-2">Fecha</th>
+              <th class="p-2">Hora</th>
+              <th class="p-2">Paciente</th>
+              <th class="p-2">Estado</th>
+              <th class="p-2">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (appt of upcomingAppointments(); track appt.id) {
+            <tr class="border-b hover:bg-purple-50 transition-colors group">
+              <td class="p-2">
+                {{
+                  appt.appointment_date
+                    | date
+                      : "EEEE, d 'de' MMMM 'de' y - h:mm a"
+                      : undefined
+                      : "es"
+                }}
+              </td>
+              <td class="p-2 font-semibold">
+                {{ appt.appointment_date | dateFormat : "shortTime" }}
+              </td>
+              <td class="p-2">{{ appt.patient_name }}</td>
+              <td class="p-2">
+                <app-badge type="warning">Agendada</app-badge>
+              </td>
+              <td class="p-2 text-right">
+                <app-button
+                  variant="secondary"
+                  size="sm"
+                  (onClick)="openAppointmentDetail(appt)"
+                  >Ver Detalle</app-button
+                >
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      } @else {
+      <div class="text-gray-500">No tienes próximas citas.</div>
+      }
+    </div>
+
+    <div class="mb-10">
+      <h3 class="text-xl font-semibold text-purple-700 mb-4 text-left">
+        Citas completadas
+      </h3>
+      @if (completedAppointments().length > 0) {
+      <div class="overflow-x-auto rounded-xl shadow-lg">
+        <table class="w-full text-left border-collapse bg-white">
+          <thead>
+            <tr class="bg-purple-100">
+              <th class="p-2">Fecha</th>
+              <th class="p-2">Hora</th>
+              <th class="p-2">Paciente</th>
+              <th class="p-2">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (appt of completedAppointments(); track appt.id) {
+            <tr class="border-b hover:bg-purple-50 transition-colors group">
+              <td class="p-2">
+                {{
+                  appt.appointment_date
+                    | date
+                      : "EEEE, d 'de' MMMM 'de' y - h:mm a"
+                      : undefined
+                      : "es"
+                }}
+              </td>
+              <td class="p-2 font-semibold">
+                {{ appt.appointment_date | dateFormat }}
+              </td>
+              <td class="p-2">{{ appt.patient_name }}</td>
+              <td class="p-2">
+                <app-badge type="success">Completada</app-badge>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      } @else {
+      <div class="text-gray-500">No tienes citas completadas.</div>
+      }
+    </div>
+
+    <div class="mb-10">
+      <h3 class="text-xl font-semibold text-purple-700 mb-4 text-left">
+        Citas canceladas
+      </h3>
+      @if (cancelledAppointments().length > 0) {
+      <div class="overflow-x-auto rounded-xl shadow-lg">
+        <table class="w-full text-left border-collapse bg-white">
+          <thead>
+            <tr class="bg-purple-100">
+              <th class="p-2">Fecha</th>
+              <th class="p-2">Hora</th>
+              <th class="p-2">Paciente</th>
+              <th class="p-2">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (appt of cancelledAppointments(); track appt.id) {
+            <tr class="border-b hover:bg-purple-50 transition-colors group">
+              <td class="p-2">
+                {{
+                  appt.appointment_date
+                    | date
+                      : "EEEE, d 'de' MMMM 'de' y - h:mm a"
+                      : undefined
+                      : "es"
+                }}
+              </td>
+              <td class="p-2 font-semibold">
+                {{ appt.appointment_date | dateFormat }}
+              </td>
+              <td class="p-2">{{ appt.patient_name }}</td>
+              <td class="p-2">
+                <app-badge type="danger">Cancelada</app-badge>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      } @else {
+      <div class="text-gray-500">No tienes citas canceladas.</div>
+      }
+    </div>
+  </div>
 </div>
+
+@if (showAppointmentModal()) {
+<app-modal [open]="showAppointmentModal()" (close)="closeAppointmentModal()">
+  <h3 class="text-2xl font-bold mb-4 text-purple-700 text-center">
+    Detalle de Cita
+  </h3>
+  <div class="mb-4 text-sm text-gray-700 text-center">
+    <span class="font-semibold">Paciente ID:</span>
+    {{ selectedAppointment()?.patient_id }}<br />
+    <span class="font-semibold">Fecha:</span>
+    {{
+      selectedAppointment()?.appointment_date
+        | date : "short" : undefined : "es"
+    }}<br />
+    <span class="font-semibold">Estado:</span>
+    <span
+      class="px-2 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800"
+      >{{ selectedAppointment()?.status | titlecase }}</span
+    >
+  </div>
+  <form
+    [formGroup]="appointmentForm"
+    class="space-y-4"
+    (ngSubmit)="submitAppointmentForm()"
+  >
+    <div>
+      <label class="block text-sm font-semibold mb-1">Notas</label>
+      <textarea
+        formControlName="notes"
+        rows="2"
+        class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+      ></textarea>
+      @if (appointmentForm.get('notes')?.invalid &&
+      appointmentForm.get('notes')?.touched) {
+      <div class="text-red-600 text-xs mt-1">Las notas son obligatorias</div>
+      }
+    </div>
+    <div>
+      <label class="block text-sm font-semibold mb-1">Diagnóstico</label>
+      <input
+        type="text"
+        formControlName="diagnosis"
+        class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+      />
+      @if (appointmentForm.get('diagnosis')?.invalid &&
+      appointmentForm.get('diagnosis')?.touched) {
+      <div class="text-red-600 text-xs mt-1">El diagnóstico es obligatorio</div>
+      }
+    </div>
+    <div>
+      <label class="block text-sm font-semibold mb-1">Tratamiento</label>
+      <input
+        type="text"
+        formControlName="treatment"
+        class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+      />
+      @if (appointmentForm.get('treatment')?.invalid &&
+      appointmentForm.get('treatment')?.touched) {
+      <div class="text-red-600 text-xs mt-1">El tratamiento es obligatorio</div>
+      }
+    </div>
+    <div>
+      <label class="block text-sm font-semibold mb-1">Síntomas</label>
+      <input
+        type="text"
+        formControlName="symptoms"
+        class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+      />
+      @if (appointmentForm.get('symptoms')?.invalid &&
+      appointmentForm.get('symptoms')?.touched) {
+      <div class="text-red-600 text-xs mt-1">Los síntomas son obligatorios</div>
+      }
+    </div>
+    <div>
+      <label class="block text-sm font-semibold mb-1">Imágenes médicas</label>
+      <div class="flex flex-wrap gap-2 mb-2">
+        @for (img of appointmentImages(); track img) {
+        <img
+          [src]="img"
+          alt="Imagen médica"
+          class="w-16 h-16 object-cover rounded shadow"
+        />
+        }
+      </div>
+      <input type="file" class="block w-full text-sm text-gray-500" disabled />
+      <div class="text-xs text-gray-400">(Subida de imágenes próximamente)</div>
+    </div>
+    @if (appointmentError()) {
+    <div class="text-red-600 text-sm text-center">
+      {{ appointmentError() }}
+    </div>
+    } @if (appointmentLoading()) {
+    <app-button
+      type="submit"
+      variant="primary"
+      size="lg"
+      [loading]="appointmentLoading()"
+    >
+      <svg
+        class="animate-spin h-5 w-5 mr-2 text-white"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v8z"
+        ></path>
+      </svg>
+      Guardando...
+    </app-button>
+    } @else {
+    <app-button type="submit" variant="primary" size="lg">
+      Guardar Cambios
+    </app-button>
+    }
+  </form>
+</app-modal>
+} @if (showPatientHistory()) {
+<app-modal [open]="showPatientHistory()" (close)="closePatientHistory()">
+  <h3 class="text-2xl font-bold mb-4 text-purple-700 text-center">
+    Historial Médico de {{ selectedPatient()?.full_name }}
+  </h3>
+  @if (patientHistoryLoading()) {
+  <div class="text-gray-500 text-center py-8">Cargando historial...</div>
+  } @else if (patientHistoryError()) {
+  <div class="text-red-600 text-center py-8">{{ patientHistoryError() }}</div>
+  } @else if (patientMedicalRecords().length === 0) {
+  <div class="text-gray-500 text-center py-8">
+    No hay registros médicos para este paciente.
+  </div>
+  } @else {
+  <div class="space-y-4">
+    @for (record of patientMedicalRecords(); track record.id) {
+    <app-card
+      class="bg-purple-50 rounded-lg p-4 shadow flex flex-col md:flex-row md:items-center md:justify-between gap-2"
+    >
+      <div>
+        <div class="font-semibold text-purple-900">
+          {{ record.diagnosis || "Sin diagnóstico" }}
+        </div>
+        <div class="text-xs text-gray-600">
+          {{ record.created_at | date : "short" }}
+        </div>
+        <div class="text-sm text-gray-700 mt-1">
+          Notas: {{ record.notes || "Sin notas" }}
+        </div>
+      </div>
+      <app-button
+        variant="secondary"
+        size="sm"
+        (onClick)="openMedicalRecordDetail(record)"
+        >Ver Detalle</app-button
+      >
+    </app-card>
+    }
+  </div>
+  }
+</app-modal>
+} @if (selectedMedicalRecord()) {
+<app-modal
+  [open]="selectedMedicalRecord() !== null"
+  (close)="closeMedicalRecordDetail()"
+>
+  <h3 class="text-2xl font-bold mb-4 text-purple-700 text-center">
+    Detalle de Registro Médico
+  </h3>
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Fecha:</span>
+    {{ selectedMedicalRecord()?.created_at | date : "short" }}
+  </div>
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Diagnóstico:</span>
+    {{ selectedMedicalRecord()?.diagnosis || "Sin diagnóstico" }}
+  </div>
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Notas:</span>
+    {{ selectedMedicalRecord()?.notes || "Sin notas" }}
+  </div>
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Tratamiento:</span>
+    {{ selectedMedicalRecord()?.treatment || "Sin tratamiento" }}
+  </div>
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Síntomas:</span>
+    {{ selectedMedicalRecord()?.symptoms || "Sin síntomas" }}
+  </div>
+</app-modal>
+}

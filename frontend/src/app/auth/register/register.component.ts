@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -8,7 +8,6 @@ import {
 import { Router, RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../auth.service';
-import { CommonModule } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -17,7 +16,6 @@ import { MatCardModule } from '@angular/material/card';
   standalone: true,
   selector: 'app-register',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatInputModule,
     MatButtonModule,
@@ -30,7 +28,7 @@ import { MatCardModule } from '@angular/material/card';
 })
 export class RegisterComponent {
   registerForm: FormGroup;
-  loading = false;
+  loading = signal(false);
 
   constructor(
     private fb: FormBuilder,
@@ -49,7 +47,7 @@ export class RegisterComponent {
 
   submit() {
     if (this.registerForm.invalid) return;
-    this.loading = true;
+    this.loading.set(true);
     const data = {
       ...this.registerForm.value,
       clinic_name: this.registerForm.value.clinic_name,
@@ -74,14 +72,14 @@ export class RegisterComponent {
                 panelClass: ['bg-danger', 'text-white'],
               });
             }
-            this.loading = false;
+            this.loading.set(false);
           },
           error: (err) => {
             this.snackBar.open('No se pudo obtener el perfil', 'Cerrar', {
               duration: 3000,
               panelClass: ['bg-danger', 'text-white'],
             });
-            this.loading = false;
+            this.loading.set(false);
           },
         });
       },
@@ -91,7 +89,7 @@ export class RegisterComponent {
           'Cerrar',
           { duration: 3000, panelClass: ['bg-danger', 'text-white'] }
         );
-        this.loading = false;
+        this.loading.set(false);
       },
     });
   }

@@ -9,6 +9,7 @@ class MedicalRecord(SQLModel, table=True):  # type: ignore[misc, call-arg]
     id: int = Field(default=None, primary_key=True)
     patient_id: int = Field(foreign_key="user.id")
     doctor_id: int = Field(foreign_key="user.id")
+    appointment_id: int = Field(default=None, foreign_key="appointment.id")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     notes: Optional[str] = Field(default=None, max_length=500)

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -8,7 +8,6 @@ import {
 import { Router, RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../auth.service';
-import { CommonModule } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -17,7 +16,6 @@ import { MatCardModule } from '@angular/material/card';
   standalone: true,
   selector: 'app-login-patient',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatInputModule,
     MatButtonModule,
@@ -30,7 +28,7 @@ import { MatCardModule } from '@angular/material/card';
 })
 export class LoginPatientComponent {
   loginForm: FormGroup;
-  loading = false;
+  loading = signal(false);
 
   constructor(
     private fb: FormBuilder,
@@ -46,7 +44,7 @@ export class LoginPatientComponent {
 
   submit() {
     if (this.loginForm.invalid) return;
-    this.loading = true;
+    this.loading.set(true);
     this.auth.loginPatient(this.loginForm.value).subscribe({
       next: () => {
         this.auth.getProfile().subscribe({
@@ -56,14 +54,14 @@ export class LoginPatientComponent {
               panelClass: ['bg-success', 'text-white'],
             });
             this.router.navigate(['/dashboard/patient']);
-            this.loading = false;
+            this.loading.set(false);
           },
           error: (err) => {
             this.snackBar.open('No se pudo obtener el perfil', 'Cerrar', {
               duration: 3000,
               panelClass: ['bg-danger', 'text-white'],
             });
-            this.loading = false;
+            this.loading.set(false);
           },
         });
       },
@@ -73,7 +71,7 @@ export class LoginPatientComponent {
           'Cerrar',
           { duration: 3000, panelClass: ['bg-danger', 'text-white'] }
         );
-        this.loading = false;
+        this.loading.set(false);
       },
     });
   }

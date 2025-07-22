@@ -1,11 +1,413 @@
 <div
-    class="min-h-screen bg-gradient-to-br from-blue-200 via-purple-100 to-white font-inter flex flex-col items-center justify-center">
-    <div class="bg-white rounded-xl shadow-lg p-10 max-w-xl w-full text-center animate-fade-in">
-        <h2 class="text-3xl font-bold mb-4 text-purple-900 drop-shadow-lg font-inter">
-            Bienvenido al Dashboard de Admin
-        </h2>
-        <p class="text-gray-800 text-lg">
-            Aquí podrás gestionar tu clínica, administrar pacientes y doctores.
-        </p>
+  class="min-h-screen bg-gradient-to-br from-blue-200 via-purple-100 to-white font-inter flex flex-col items-center justify-center"
+>
+  <div
+    class="bg-white rounded-xl shadow-lg p-10 max-w-5xl w-full text-center animate-fade-in"
+  >
+    <h2
+      class="text-3xl font-bold mb-4 text-purple-900 drop-shadow-lg font-inter"
+    >
+      Panel de Administrador
+    </h2>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-10">
+      <app-card>
+        <span class="text-2xl font-bold text-purple-800">{{
+          totalUsers()
+        }}</span>
+        <span class="text-xs text-purple-700 font-semibold mt-1">Usuarios</span>
+      </app-card>
+      <app-card>
+        <span class="text-2xl font-bold text-blue-800">{{
+          totalDoctors()
+        }}</span>
+        <span class="text-xs text-blue-700 font-semibold mt-1">Doctores</span>
+      </app-card>
+      <app-card>
+        <span class="text-2xl font-bold text-pink-800">{{
+          totalPatients()
+        }}</span>
+        <span class="text-xs text-pink-700 font-semibold mt-1">Pacientes</span>
+      </app-card>
+      <app-card>
+        <span class="text-2xl font-bold text-yellow-800">{{
+          totalAdmins()
+        }}</span>
+        <span class="text-xs text-yellow-700 font-semibold mt-1"
+          >Administradores</span
+        >
+      </app-card>
+      <app-card>
+        <span class="text-2xl font-bold text-green-800">{{
+          totalAppointments()
+        }}</span>
+        <span class="text-xs text-green-700 font-semibold mt-1">Citas</span>
+      </app-card>
     </div>
+
+    <app-button
+      class="fixed bottom-8 right-8 z-50"
+      variant="primary"
+      size="lg"
+      (onClick)="openAddUser()"
+      title="Agregar Usuario"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-6 h-6"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 4v16m8-8H4"
+        />
+      </svg>
+      <span class="hidden md:inline font-semibold">Agregar Usuario</span>
+    </app-button>
+
+    @if (showAddUser()) {
+    <app-modal [open]="showAddUser()" (close)="closeAddUser()">
+      <h3 class="text-2xl font-bold mb-4 text-purple-700 text-center">
+        Agregar Usuario
+      </h3>
+      <form
+        [formGroup]="addUserForm"
+        class="space-y-4"
+        (ngSubmit)="submitAddUser()"
+      >
+        <div>
+          <label class="block text-sm font-semibold mb-1"
+            >Nombre completo</label
+          >
+          <input
+            type="text"
+            formControlName="full_name"
+            class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          />
+          @if (addUserForm.get('full_name')?.invalid &&
+          addUserForm.get('full_name')?.touched) {
+          <div class="text-red-600 text-xs mt-1">El nombre es obligatorio</div>
+          }
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1">Email</label>
+          <input
+            type="email"
+            formControlName="email"
+            class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          />
+          @if (addUserForm.get('email')?.invalid &&
+          addUserForm.get('email')?.touched) {
+          <div class="text-red-600 text-xs mt-1">Email válido obligatorio</div>
+          }
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1">Contraseña</label>
+          <input
+            type="password"
+            formControlName="password"
+            class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          />
+          @if (addUserForm.get('password')?.invalid &&
+          addUserForm.get('password')?.touched) {
+          <div class="text-red-600 text-xs mt-1">Mínimo 6 caracteres</div>
+          }
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1">Rol</label>
+          <select
+            formControlName="role"
+            class="w-full border rounded px-3 py-2"
+          >
+            <option value="doctor">Doctor</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+        @if (addUserError()) {
+        <div class="text-red-600 text-sm text-center">
+          {{ addUserError() }}
+        </div>
+        }
+        <app-button
+          type="submit"
+          variant="primary"
+          size="lg"
+          [disabled]="addUserForm.invalid || addUserLoading()"
+          [loading]="addUserLoading()"
+        >
+          {{ addUserLoading() ? "Creando..." : "Crear Usuario" }}
+        </app-button>
+      </form>
+    </app-modal>
+    }
+
+    <div class="mb-6">
+      <h3 class="text-xl font-semibold text-purple-700 mb-2">
+        Información de la Clínica
+      </h3>
+      @if (clinics().length > 0) { @for (clinic of clinics(); track clinic.id) {
+      <app-card>
+        <div class="font-bold">{{ clinic.name }}</div>
+        <div class="text-gray-700 text-sm">ID: {{ clinic.id }}</div>
+        <div class="text-gray-700 text-sm">
+          Dirección: {{ clinic.address || "No registrada" }}
+        </div>
+        <div class="text-gray-700 text-sm">
+          Creada: {{ clinic.created_at | date : "medium" }}
+        </div>
+      </app-card>
+      } } @else {
+      <div class="text-gray-500">No tienes clínicas registradas.</div>
+      }
+    </div>
+
+    <div class="mb-6">
+      <h3 class="text-xl font-semibold text-purple-700 mb-2">Usuarios</h3>
+
+      <div class="flex flex-wrap gap-2 justify-center mb-4">
+        <button
+          class="px-3 py-1 rounded bg-purple-600 text-white hover:bg-purple-800 cursor-pointer"
+          (click)="onRoleChange('')"
+        >
+          Todos
+        </button>
+        <button
+          class="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-700 cursor-pointer"
+          (click)="onRoleChange('admin')"
+        >
+          Administradores
+        </button>
+        <button
+          class="px-3 py-1 rounded bg-green-500 text-white hover:bg-green-700 cursor-pointer"
+          (click)="onRoleChange('doctor')"
+        >
+          Doctores
+        </button>
+        <button
+          class="px-3 py-1 rounded bg-pink-500 text-white hover:bg-pink-700 cursor-pointer"
+          (click)="onRoleChange('patient')"
+        >
+          Pacientes
+        </button>
+      </div>
+      <input
+        type="text"
+        class="mb-4 px-3 py-2 border rounded w-full max-w-xs"
+        placeholder="Buscar usuario..."
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)"
+      />
+      @if (filteredUsers().length > 0) {
+      <div class="overflow-x-auto rounded-xl shadow-lg">
+        <table class="w-full text-left border-collapse bg-white">
+          <thead>
+            <tr class="bg-purple-100">
+              <th class="p-2">Usuario</th>
+              <th class="p-2">Email</th>
+              <th class="p-2">Rol</th>
+              <th class="p-2">Activo</th>
+              <th class="p-2">Verificado</th>
+              <th class="p-2">Creado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of filteredUsers(); track user.id) {
+            <tr class="border-b hover:bg-purple-50 transition-colors group">
+              <td class="p-2 flex items-center gap-2">
+                <span
+                  class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-purple-300 to-purple-500 text-white font-bold text-lg shadow group-hover:scale-110 transition-transform"
+                >
+                  {{ user.full_name ? user.full_name[0] : user.email[0] }}
+                </span>
+                <span class="font-semibold text-gray-900">{{
+                  user.full_name || "Sin nombre"
+                }}</span>
+              </td>
+              <td class="p-2 text-gray-700">{{ user.email }}</td>
+              <td class="p-2">
+                <app-badge
+                  [type]="
+                    user.role === 'doctor'
+                      ? 'info'
+                      : user.role === 'patient'
+                      ? 'danger'
+                      : 'warning'
+                  "
+                >
+                  {{ user.role | titlecase }}
+                </app-badge>
+              </td>
+              <td class="p-2">
+                <app-badge [type]="user.is_active ? 'success' : 'neutral'">
+                  {{ user.is_active ? "Sí" : "No" }}
+                </app-badge>
+              </td>
+              <td class="p-2">
+                <app-badge [type]="user.is_verified ? 'success' : 'neutral'">
+                  {{ user.is_verified ? "Sí" : "No" }}
+                </app-badge>
+              </td>
+              <td class="p-2 text-gray-600">
+                {{ user.created_at | date : "short" }}
+              </td>
+              <td class="p-2 text-right">
+                <app-button
+                  variant="secondary"
+                  size="sm"
+                  (onClick)="openUserModal(user)"
+                  >Editar</app-button
+                >
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      } @else {
+      <div class="text-gray-500">No hay usuarios para mostrar.</div>
+      }
+    </div>
+
+    <div>
+      <div class="flex justify-between items-center">
+        <h3 class="text-xl font-semibold text-purple-700 mb-2">Citas</h3>
+        <button
+          (click)="downloadAppointmentsCSV()"
+          class="bg-green-600 hover:bg-green-800 text-white rounded-full px-6 py-2 font-bold shadow transition-all cursor-pointer mb-2"
+        >
+          Descargar citas (CSV)
+        </button>
+      </div>
+
+      @if (appointments().length > 0) {
+      <ul class="space-y-2">
+        @for (appt of appointments(); track appt.id) {
+        <li class="bg-blue-50 rounded p-3 text-left shadow">
+          <span class="font-bold">Fecha:</span>
+          {{
+            appt.appointment_date
+              | dateFormat : "EEEE, d 'de' MMMM 'de' y - h:mm a" : "es"
+          }}<br />
+          <span class="font-bold">Doctor:</span> {{ appt.doctor_name }}<br />
+          <span class="font-bold">Paciente:</span> {{ appt.patient_name }}<br />
+          <span class="font-bold">Estado:</span>
+          <span
+            class="px-2 py-1 rounded-full text-xs font-bold drop-shadow"
+            [ngClass]="{
+              'bg-yellow-100 text-yellow-800': appt.status === 'scheduled',
+              'bg-green-200 text-green-900 border border-green-400':
+                appt.status === 'completed',
+              'bg-red-200 text-red-900 border border-red-400':
+                appt.status === 'cancelled'
+            }"
+          >
+            {{ appt.status | statusLabel }}
+          </span>
+        </li>
+        }
+      </ul>
+      } @else {
+      <div class="text-gray-500">No hay citas registradas.</div>
+      }
+    </div>
+    @if (appointments().length > 0) {
+    <div class="flex items-center justify-between mt-4">
+      <button
+        (click)="prevAppointmentsPage()"
+        [disabled]="appointmentsOffset() === 0"
+        class="bg-purple-100 hover:bg-purple-300 text-purple-800 rounded-full px-4 py-1 text-xs font-bold shadow transition-transform hover:scale-110 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Anterior
+      </button>
+      <span class="text-sm text-gray-600">
+        Página {{ appointmentsOffset() / appointmentsLimit() + 1 }}
+      </span>
+      <button
+        (click)="nextAppointmentsPage()"
+        [disabled]="appointments().length < appointmentsLimit()"
+        class="bg-purple-100 hover:bg-purple-300 text-purple-800 rounded-full px-4 py-1 text-xs font-bold shadow transition-transform hover:scale-110 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Siguiente
+      </button>
+    </div>
+    }
+  </div>
 </div>
+
+@if (showUserModal()) {
+<app-modal [open]="showUserModal()" (close)="closeUserModal()">
+  <h3 class="text-2xl font-bold mb-4 text-purple-700 text-center">
+    Editar Usuario
+  </h3>
+  <form
+    [formGroup]="userEditForm"
+    class="space-y-4"
+    (ngSubmit)="submitUserEdit()"
+  >
+    <div>
+      <label class="block text-sm font-semibold mb-1">Nombre completo</label>
+      <input
+        type="text"
+        formControlName="full_name"
+        class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+      />
+      @if (userEditForm.get('full_name')?.invalid &&
+      userEditForm.get('full_name')?.touched) {
+      <div class="text-red-600 text-xs mt-1">El nombre es obligatorio</div>
+      }
+    </div>
+    <div>
+      <label class="block text-sm font-semibold mb-1">Email</label>
+      <input
+        type="email"
+        formControlName="email"
+        class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+      />
+      @if (userEditForm.get('email')?.invalid &&
+      userEditForm.get('email')?.touched) {
+      <div class="text-red-600 text-xs mt-1">Email válido obligatorio</div>
+      }
+    </div>
+    <div class="flex gap-2">
+      <div class="flex-1">
+        <label class="block text-sm font-semibold mb-1">Rol</label>
+        <select formControlName="role" class="w-full border rounded px-3 py-2">
+          <option value="admin">Administrador</option>
+          <option value="doctor">Doctor</option>
+          <option value="patient">Paciente</option>
+        </select>
+      </div>
+      <div class="flex-1 flex flex-col gap-2 justify-end">
+        <label class="block text-sm font-semibold mb-1">Activo</label>
+        <input
+          type="checkbox"
+          formControlName="is_active"
+          class="w-5 h-5 accent-purple-600"
+        />
+        <label class="block text-sm font-semibold mb-1">Verificado</label>
+        <input
+          type="checkbox"
+          formControlName="is_verified"
+          class="w-5 h-5 accent-purple-600"
+        />
+      </div>
+    </div>
+    @if (userEditError()) {
+    <div class="text-red-600 text-sm text-center">{{ userEditError() }}</div>
+    }
+    <app-button
+      type="submit"
+      variant="primary"
+      size="lg"
+      [disabled]="userEditForm.invalid || userEditLoading()"
+      [loading]="userEditLoading()"
+    >
+      {{ userEditLoading() ? "Guardando..." : "Guardar Cambios" }}
+    </app-button>
+  </form>
+</app-modal>
+}

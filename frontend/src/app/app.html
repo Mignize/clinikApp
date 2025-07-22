@@ -1,17 +1,39 @@
-<nav *ngIf="showNavbar" class="w-full bg-gray-900 text-white flex items-center justify-between px-6 py-3">
+@if (showNavbar()) {
+<nav
+  class="w-full bg-gray-900 text-white flex items-center justify-between px-6 py-3"
+>
   <div class="font-bold text-lg">ClinikApp</div>
   <div class="flex items-center gap-4">
-    <ng-container *ngIf="role as userRole">
-      <span class="px-2 py-1 rounded bg-purple-700 text-white text-xs">Rol: {{ userRole }}</span>
-    </ng-container>
-    <ng-container *ngIf="user$ | async as user">
-      <span class="px-2 py-1 rounded bg-gray-800 text-white text-xs">{{ user.full_name || user.email }}</span>
-      <button (click)="logout()" class="ml-2 p-2 rounded-full bg-red-600 hover:bg-red-700 flex items-center justify-center" title="Cerrar sesión">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M18 12H9m0 0l3-3m-3 3l3 3" />
-        </svg>
-      </button>
-    </ng-container>
+    @if (user()) {
+    <span class="px-2 py-1 rounded bg-gray-800 text-white text-xs">
+      {{ user()?.full_name || user()?.email }}
+    </span>
+    <button
+      (click)="logout()"
+      class="ml-2 p-2 rounded-full bg-red-600 hover:bg-red-700 flex items-center justify-center"
+      title="Cerrar sesión"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="w-5 h-5"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 
+              2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 
+              21h6a2.25 2.25 0 002.25-2.25V15M18 
+              12H9m0 0l3-3m-3 3l3 3"
+        />
+      </svg>
+    </button>
+    }
   </div>
 </nav>
+}
+
 <router-outlet />

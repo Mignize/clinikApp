@@ -1,12 +1,421 @@
 <div
-    class="min-h-screen bg-gradient-to-br from-blue-200 via-purple-100 to-white font-inter flex flex-col items-center justify-center">
-    <div class="bg-white rounded-xl shadow-lg p-10 max-w-xl w-full text-center animate-fade-in">
-        <h2 class="text-3xl font-bold mb-4 text-purple-900 drop-shadow-lg font-inter">
-            Bienvenido al Dashboard de Paciente
+  class="min-h-screen bg-gradient-to-br from-blue-200 via-purple-100 to-white font-inter flex flex-col items-center justify-center"
+>
+  <div
+    class="bg-white rounded-xl shadow-lg p-10 max-w-3xl w-full text-center animate-fade-in"
+  >
+    <div class="flex items-center gap-4 mb-8 animate-fade-in">
+      <div
+        class="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center text-3xl font-bold text-purple-700 drop-shadow"
+      >
+        <span>{{ (user()?.full_name || user()?.email)?.[0] | uppercase }}</span>
+      </div>
+      <div>
+        <h2
+          class="text-2xl font-bold text-gray-900 mb-1 flex items-center gap-2"
+        >
+          ¡Hola, {{ user()?.full_name || user()?.email }}!
+          <span
+            class="ml-2 px-2 py-1 rounded-full bg-purple-200 text-purple-800 text-xs font-semibold drop-shadow"
+            >Paciente</span
+          >
         </h2>
-        <p class="text-gray-800 text-lg">
-            Aquí podrás gestionar tus citas, ver tu historial médico y recibir
-            notificaciones.
-        </p>
+        <div class="text-gray-500">Bienvenido a tu panel de paciente</div>
+      </div>
     </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mb-10">
+      <app-card>
+        <div class="text-purple-600 text-3xl font-bold mb-2 drop-shadow">
+          {{ totalUpcomingAppointments() }}
+        </div>
+        <div class="text-gray-700 font-semibold">Próximas citas</div>
+      </app-card>
+    </div>
+
+    <div class="mb-10">
+      <h3 class="text-xl font-semibold text-purple-700 mb-4 text-left">
+        Próximas citas
+      </h3>
+      @if (upcomingAppointments().length > 0) {
+      <div class="overflow-x-auto rounded-xl shadow-lg animate-fade-in">
+        <table class="w-full text-left border-collapse bg-white">
+          <thead>
+            <tr class="bg-purple-100">
+              <th class="p-2">Fecha</th>
+              <th class="p-2">Hora</th>
+              <th class="p-2">Doctor</th>
+              <th class="p-2">Estado</th>
+              <th class="p-2">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (appt of upcomingAppointments(); track appt.id) {
+            <tr class="border-b hover:bg-purple-50 transition-colors group">
+              <td class="p-2">{{ appt.appointment_date | dateFormat }}</td>
+              <td class="p-2 font-semibold">
+                {{ appt.appointment_date | dateFormat : "shortTime" }}
+              </td>
+              <td class="p-2">{{ appt.doctor_name }}</td>
+              <td class="p-2">
+                <app-badge
+                  [type]="
+                    appt.status === 'scheduled'
+                      ? 'warning'
+                      : appt.status === 'completed'
+                      ? 'success'
+                      : 'danger'
+                  "
+                >
+                  {{ appt.status | statusLabel }}
+                </app-badge>
+              </td>
+              <td class="p-2 text-right">
+                <app-button
+                  variant="secondary"
+                  size="sm"
+                  (onClick)="openAppointmentDetail(appt)"
+                  >Ver Detalle</app-button
+                >
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      } @else {
+      <div class="text-gray-500">No tienes citas próximas.</div>
+      }
+    </div>
+
+    <div class="mb-10">
+      <h3 class="text-xl font-semibold text-purple-700 mb-4 text-left">
+        Citas realizadas
+      </h3>
+      @if (completedAppointments().length > 0) {
+      <div class="overflow-x-auto rounded-xl shadow-lg animate-fade-in">
+        <table class="w-full text-left border-collapse bg-white">
+          <thead>
+            <tr class="bg-purple-100">
+              <th class="p-2">Fecha</th>
+              <th class="p-2">Hora</th>
+              <th class="p-2">Doctor</th>
+              <th class="p-2">Estado</th>
+              <th class="p-2">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (appt of completedAppointments(); track appt.id) {
+            <tr class="border-b hover:bg-purple-50 transition-colors group">
+              <td class="p-2">
+                {{
+                  appt.appointment_date
+                    | date
+                      : "EEEE, d 'de' MMMM 'de' y - h:mm a"
+                      : undefined
+                      : "es"
+                }}
+              </td>
+              <td class="p-2 font-semibold">
+                {{
+                  appt.appointment_date | date : "shortTime" : undefined : "es"
+                }}
+              </td>
+              <td class="p-2">{{ appt.doctor_name }}</td>
+              <td class="p-2">
+                <app-badge type="success">Completada</app-badge>
+              </td>
+              <td class="p-2 text-right">
+                <app-button
+                  variant="secondary"
+                  size="sm"
+                  (onClick)="openAppointmentDetail(appt)"
+                  >Ver Detalle</app-button
+                >
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      } @else {
+      <div class="text-gray-500">No tienes citas realizadas.</div>
+      }
+    </div>
+
+    <div class="mb-10">
+      <h3 class="text-xl font-semibold text-purple-700 mb-4 text-left">
+        Citas canceladas
+      </h3>
+      @if (cancelledAppointments().length > 0) {
+      <div class="overflow-x-auto rounded-xl shadow-lg animate-fade-in">
+        <table class="w-full text-left border-collapse bg-white">
+          <thead>
+            <tr class="bg-purple-100">
+              <th class="p-2">Fecha</th>
+              <th class="p-2">Hora</th>
+              <th class="p-2">Doctor</th>
+              <th class="p-2">Estado</th>
+              <th class="p-2">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (appt of cancelledAppointments(); track appt.id) {
+            <tr class="border-b hover:bg-purple-50 transition-colors group">
+              <td class="p-2">
+                {{
+                  appt.appointment_date
+                    | date
+                      : "EEEE, d 'de' MMMM 'de' y - h:mm a"
+                      : undefined
+                      : "es"
+                }}
+              </td>
+              <td class="p-2 font-semibold">
+                {{
+                  appt.appointment_date | date : "shortTime" : undefined : "es"
+                }}
+              </td>
+              <td class="p-2">{{ appt.doctor_name }}</td>
+              <td class="p-2">
+                <app-badge type="danger">Cancelada</app-badge>
+              </td>
+              <td class="p-2 text-right">
+                <app-button
+                  variant="secondary"
+                  size="sm"
+                  (onClick)="openAppointmentDetail(appt)"
+                  >Ver Detalle</app-button
+                >
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      } @else {
+      <div class="text-gray-500">No tienes citas canceladas.</div>
+      }
+    </div>
+
+    <div class="mb-10">
+      <h3 class="text-xl font-semibold text-purple-700 mb-4 text-left">
+        Historial médico
+      </h3>
+      @if (medicalRecords().length > 0) {
+      <div class="overflow-x-auto rounded-xl shadow-lg animate-fade-in">
+        <table class="w-full text-left border-collapse bg-white">
+          <thead>
+            <tr class="bg-purple-100">
+              <th class="p-2">Fecha</th>
+              <th class="p-2">Doctor</th>
+              <th class="p-2">Resumen</th>
+              <th class="p-2">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (record of medicalRecords(); track record.id) {
+            <tr class="border-b hover:bg-purple-50 transition-colors group">
+              <td class="p-2">{{ record.date | date : "shortDate" }}</td>
+              <td class="p-2">ID {{ record.doctor_id }}</td>
+              <td class="p-2 truncate max-w-xs">
+                {{ record.summary || record.notes || "-" }}
+              </td>
+              <td class="p-2 text-right">
+                <app-button variant="secondary" size="sm"
+                  >Ver Detalle</app-button
+                >
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      } @else {
+      <div class="text-gray-500">No hay registros médicos aún.</div>
+      }
+    </div>
+
+    <app-button
+      class="fixed bottom-8 right-8 z-30"
+      variant="primary"
+      size="lg"
+      (onClick)="openScheduleModal()"
+    >
+      <span class="material-icons align-middle mr-2">add_circle</span> Agendar
+      cita
+    </app-button>
+
+    @if (showScheduleModal()) {
+    <app-modal [open]="showScheduleModal()" (close)="closeScheduleModal()">
+      <h3 class="text-xl font-bold text-purple-700 mb-4">Agendar nueva cita</h3>
+      <form
+        [formGroup]="scheduleForm"
+        (ngSubmit)="submitSchedule()"
+        autocomplete="off"
+      >
+        <div class="mb-4">
+          <label class="block text-sm font-semibold mb-1">Doctor</label>
+          <select
+            formControlName="doctor_id"
+            class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          >
+            <option value="" disabled>Selecciona un doctor</option>
+            @for (doc of doctorAvailability(); track doc.doctor_id) {
+            <option [value]="doc.doctor_id">{{ doc.doctor_name }}</option>
+            }
+          </select>
+          @if (scheduleForm.get('doctor_id')?.invalid &&
+          scheduleForm.get('doctor_id')?.touched) {
+          <div class="text-xs text-red-500 mt-1">Selecciona un doctor.</div>
+          }
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-semibold mb-1"
+            >Horario disponible</label
+          >
+          <select
+            formControlName="date"
+            class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          >
+            <option value="" disabled>Selecciona un horario</option>
+            @for (slot of availableSlots; track slot) {
+            <option [value]="slot">
+              {{
+                slot
+                  | date
+                    : "EEEE, d 'de' MMMM 'de' y - h:mm a"
+                    : undefined
+                    : "es"
+              }}
+            </option>
+            }
+          </select>
+          @if (scheduleForm.get('date')?.invalid &&
+          scheduleForm.get('date')?.touched) {
+          <div class="text-xs text-red-500 mt-1">Selecciona fecha y hora.</div>
+          }
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-semibold mb-1">Motivo</label>
+          <textarea
+            formControlName="reason"
+            rows="2"
+            class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          ></textarea>
+          @if (scheduleForm.get('reason')?.invalid &&
+          scheduleForm.get('reason')?.touched) {
+          <div class="text-xs text-red-500 mt-1">
+            Describe el motivo (mínimo 5 caracteres).
+          </div>
+          }
+        </div>
+        @if (scheduleError()) {
+        <div class="text-xs text-red-500 mb-2">{{ scheduleError() }}</div>
+        }
+        <app-button
+          type="submit"
+          variant="primary"
+          size="lg"
+          [loading]="scheduleLoading()"
+          [disabled]="scheduleForm.invalid || scheduleLoading()"
+        >
+          {{ scheduleLoading() ? "Agendando..." : "Agendar cita" }}
+        </app-button>
+      </form>
+    </app-modal>
+    }
+  </div>
 </div>
+
+@if (showAppointmentDetail()) {
+<app-modal [open]="showAppointmentDetail()" (close)="closeAppointmentDetail()">
+  <h3 class="text-xl font-bold text-purple-700 mb-4">Detalle de Cita</h3>
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Fecha:</span>
+    {{
+      selectedAppointment()?.appointment_date
+        | date : "EEEE, d 'de' MMMM 'de' y - h:mm a" : undefined : "es"
+    }}
+  </div>
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Doctor:</span>
+    {{ selectedAppointment()?.doctor_name }}
+  </div>
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Estado:</span>
+    <span
+      class="px-2 py-1 rounded-full text-xs font-bold drop-shadow"
+      [ngClass]="{
+        'bg-yellow-200 text-yellow-900 border border-yellow-400':
+          selectedAppointment()?.status === 'scheduled' ||
+          selectedAppointment()?.status === 'pendiente',
+        'bg-green-200 text-green-900 border border-green-400':
+          selectedAppointment()?.status === 'completed' ||
+          selectedAppointment()?.status === 'completada',
+        'bg-red-200 text-red-900 border border-red-400':
+          selectedAppointment()?.status === 'cancelled' ||
+          selectedAppointment()?.status === 'cancelada'
+      }"
+    >
+      {{
+        selectedAppointment()?.status === "scheduled"
+          ? "Agendado"
+          : selectedAppointment()?.status === "completed"
+          ? "Completada"
+          : selectedAppointment()?.status === "cancelled"
+          ? "Cancelada"
+          : selectedAppointment()?.status === "pendiente"
+          ? "Pendiente"
+          : (selectedAppointment()?.status | titlecase)
+      }}
+    </span>
+  </div>
+  @if (medicalRecordLoading()) {
+  <div class="text-gray-500">Cargando registro médico...</div>
+  } @else if (medicalRecordError()) {
+  <div class="text-red-600">{{ medicalRecordError() }}</div>
+  } @else if (medicalRecord()) { @if (medicalRecord()?.notes) {
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Notas del doctor:</span>
+    {{ medicalRecord()?.notes }}
+  </div>
+  } @if (medicalRecord()?.diagnosis) {
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Diagnóstico:</span>
+    {{ medicalRecord()?.diagnosis }}
+  </div>
+  } @if (medicalRecord()?.treatment) {
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Tratamiento:</span>
+    {{ medicalRecord()?.treatment }}
+  </div>
+  } @if (medicalRecord()?.symptoms) {
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Síntomas:</span>
+    {{ medicalRecord()?.symptoms }}
+  </div>
+  } @else {
+  <div class="mb-2 text-sm text-gray-700">
+    <span class="font-semibold">Síntomas:</span>
+    No hay síntomas
+  </div>
+  } } @else {
+  <div class="text-gray-500">No hay registro médico para esta cita.</div>
+  } @if ( selectedAppointment()?.status === 'scheduled' ||
+  selectedAppointment()?.status === 'agendado' || selectedAppointment()?.status
+  === 'pendiente' ) {
+  <div class="flex gap-2 mt-4">
+    <app-button variant="danger" size="sm" (onClick)="cancelAppointment()"
+      >Cancelar cita</app-button
+    >
+    <app-button
+      variant="secondary"
+      size="sm"
+      (onClick)="closeAppointmentDetail(); openScheduleModal()"
+      >Reagendar</app-button
+    >
+  </div>
+  }
+</app-modal>
+}

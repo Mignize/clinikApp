@@ -19,6 +19,8 @@ class AppointmentRead(BaseModel):
     status: str
     reason: Optional[str] = None
     notes: Optional[str] = None
+    doctor_name: Optional[str] = None
+    patient_name: Optional[str] = None
 
     class Config:
         orm_mode = True

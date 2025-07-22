@@ -1,7 +1,8 @@
 import os
 from typing import Optional
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from sqlmodel import select
 
 from app.deps.auth import SessionDep, require_doctor
 from app.models.medical_image import MedicalImage
@@ -64,3 +65,23 @@ def upload_medical_image(
     session.commit()
     session.refresh(image)
     return image
+
+
+@router.get("/{record_id}", response_model=MedicalRecordRead, dependencies=[doctor_dep])
+def get_medical_record(record_id: int, session: SessionDep):
+    record = session.get(MedicalRecord, record_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Medical record not found")
+    return record
+
+
+@router.get("/by-appointment/{appointment_id}", response_model=MedicalRecordRead)
+def get_medical_record_by_appointment(appointment_id: int, session: SessionDep):
+    record = session.exec(
+        select(MedicalRecord).where(MedicalRecord.appointment_id == appointment_id)
+    ).first()
+    if not record:
+        raise HTTPException(
+            status_code=404, detail="Medical record not found for this appointment"
+        )
+    return record

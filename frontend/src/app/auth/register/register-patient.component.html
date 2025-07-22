@@ -1,46 +1,89 @@
 <div
-    class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 via-purple-100 to-white font-inter">
-    <mat-card class="w-full max-w-md p-8 shadow-lg animate-fade-in">
-        <h2 class="text-2xl font-bold mb-6 text-purple-900 text-center drop-shadow font-inter">
-            Registro de Paciente
-        </h2>
-        <form [formGroup]="registerForm" (ngSubmit)="submit()" class="space-y-4">
-            <mat-form-field class="w-full">
-                <mat-label>Nombre completo</mat-label>
-                <input matInput formControlName="full_name" type="text" autocomplete="name" required />
-                <mat-error *ngIf="registerForm.get('full_name')?.hasError('required')">El nombre es
-                    obligatorio</mat-error>
-            </mat-form-field>
-            <mat-form-field class="w-full">
-                <mat-label>Email</mat-label>
-                <input matInput formControlName="email" type="email" autocomplete="email" required />
-                <mat-error *ngIf="registerForm.get('email')?.hasError('required')">El email es obligatorio</mat-error>
-                <mat-error *ngIf="registerForm.get('email')?.hasError('email')">Email inválido</mat-error>
-            </mat-form-field>
-            <mat-form-field class="w-full">
-                <mat-label>Contraseña</mat-label>
-                <input matInput formControlName="password" type="password" autocomplete="new-password" required />
-                <mat-error *ngIf="registerForm.get('password')?.hasError('required')">La contraseña es
-                    obligatoria</mat-error>
-                <mat-error *ngIf="registerForm.get('password')?.hasError('minlength')">Mínimo 6 caracteres</mat-error>
-            </mat-form-field>
-            <mat-form-field class="w-full">
-                <mat-label>Clínica</mat-label>
-                <mat-select formControlName="clinic_id">
-                    <mat-option *ngFor="let clinic of clinics" [value]="clinic.id">{{
-                        clinic.name
-                        }}</mat-option>
-                </mat-select>
-            </mat-form-field>
-            <button mat-raised-button color="primary"
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3 text-lg font-semibold shadow-lg transition-transform duration-300 hover:scale-105 animate-slide-up"
-                [disabled]="loading || registerForm.invalid">
-                {{ loading ? 'Registrando...' : 'Registrarse' }}
-            </button>
-            <div class="text-center mt-4">
-                <a routerLink="/auth/login-patient" class="text-purple-700 hover:underline font-semibold">¿Ya tienes
-                    cuenta? Inicia sesión</a>
-            </div>
-        </form>
-    </mat-card>
+  class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 via-purple-100 to-white font-inter"
+>
+  <mat-card class="w-full max-w-md p-8 shadow-lg animate-fade-in">
+    <h2
+      class="text-2xl font-bold mb-6 text-purple-900 text-center drop-shadow font-inter"
+    >
+      Registro de Paciente
+    </h2>
+
+    <form [formGroup]="registerForm" (ngSubmit)="submit()" class="space-y-4">
+      <mat-form-field class="w-full">
+        <mat-label>Nombre completo</mat-label>
+        <input
+          matInput
+          formControlName="full_name"
+          type="text"
+          autocomplete="name"
+          required
+        />
+        @if (registerForm.get('full_name')?.hasError('required')) {
+        <mat-error>El nombre es obligatorio</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field class="w-full">
+        <mat-label>Email</mat-label>
+        <input
+          matInput
+          formControlName="email"
+          type="email"
+          autocomplete="email"
+          required
+        />
+        @if (registerForm.get('email')?.hasError('required')) {
+        <mat-error>El email es obligatorio</mat-error>
+        } @if (registerForm.get('email')?.hasError('email')) {
+        <mat-error>Email inválido</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field class="w-full">
+        <mat-label>Contraseña</mat-label>
+        <input
+          matInput
+          formControlName="password"
+          type="password"
+          autocomplete="new-password"
+          required
+        />
+        @if (registerForm.get('password')?.hasError('required')) {
+        <mat-error>La contraseña es obligatoria</mat-error>
+        } @if (registerForm.get('password')?.hasError('minlength')) {
+        <mat-error>Mínimo 6 caracteres</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field class="w-full">
+        <mat-label>Clínica</mat-label>
+        <mat-select formControlName="clinic_id" required>
+          @for (clinic of clinics(); track clinic.id) {
+          <mat-option [value]="clinic.id">{{ clinic.name }}</mat-option>
+          }
+        </mat-select>
+        @if (registerForm.get('clinic_id')?.hasError('required')) {
+        <mat-error>Seleccionar una clínica es obligatorio</mat-error>
+        }
+      </mat-form-field>
+
+      <button
+        mat-raised-button
+        color="primary"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3 text-lg font-semibold shadow-lg transition-transform duration-300 hover:scale-105 animate-slide-up"
+        [disabled]="loading() || registerForm.invalid"
+      >
+        {{ loading() ? "Registrando..." : "Registrarse" }}
+      </button>
+
+      <div class="text-center mt-4">
+        <a
+          routerLink="/auth/login-patient"
+          class="text-purple-700 hover:underline font-semibold"
+        >
+          ¿Ya tienes cuenta? Inicia sesión
+        </a>
+      </div>
+    </form>
+  </mat-card>
 </div>

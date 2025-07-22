@@ -17,6 +17,7 @@ class MedicalRecordRead(BaseModel):
     id: int
     patient_id: int
     doctor_id: int
+    appointment_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime
     notes: Optional[str]
