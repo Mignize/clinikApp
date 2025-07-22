@@ -14,3 +14,10 @@ class PatientProfile(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class PatientRegisterRequest(BaseModel):
+    email: str
+    password: str
+    full_name: str
+    clinic_id: int

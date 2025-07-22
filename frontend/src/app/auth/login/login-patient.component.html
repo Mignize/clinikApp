@@ -1,0 +1,32 @@
+<div
+    class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 via-purple-100 to-white font-inter">
+    <mat-card class="w-full max-w-md p-8 shadow-lg animate-fade-in">
+        <h2 class="text-2xl font-bold mb-6 text-purple-900 text-center drop-shadow font-inter">
+            Iniciar Sesión
+        </h2>
+        <form [formGroup]="loginForm" (ngSubmit)="submit()" class="space-y-4">
+            <mat-form-field class="w-full">
+                <mat-label>Email</mat-label>
+                <input matInput formControlName="email" type="email" autocomplete="email" required />
+                <mat-error *ngIf="loginForm.get('email')?.hasError('required')">El email es obligatorio</mat-error>
+                <mat-error *ngIf="loginForm.get('email')?.hasError('email')">Email inválido</mat-error>
+            </mat-form-field>
+            <mat-form-field class="w-full">
+                <mat-label>Contraseña</mat-label>
+                <input matInput formControlName="password" type="password" autocomplete="current-password" required />
+                <mat-error *ngIf="loginForm.get('password')?.hasError('required')">La contraseña es
+                    obligatoria</mat-error>
+                <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">Mínimo 6 caracteres</mat-error>
+            </mat-form-field>
+            <button mat-raised-button color="primary"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3 text-lg font-semibold shadow-lg transition-transform duration-300 hover:scale-105 animate-slide-up"
+                [disabled]="loading || loginForm.invalid">
+                {{ loading ? 'Ingresando...' : 'Ingresar' }}
+            </button>
+            <div class="text-center mt-4">
+                <a routerLink="/auth/register-patient" class="text-blue-700 hover:underline font-semibold">¿No tienes
+                    cuenta? Regístrate</a>
+            </div>
+        </form>
+    </mat-card>
+</div>
