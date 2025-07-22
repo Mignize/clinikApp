@@ -112,7 +112,7 @@ export class PatientDashboardComponent implements OnInit {
 
   fetchMedicalRecords() {
     this.http
-      .get<any>(`${environment.API_URL}/patients/${this.user()?.id}`)
+      .get<any>(`${environment.API_URL}/patients/me`)
       .subscribe((profile) => {
         this.medicalRecords.set(
           (profile.medical_records || []).map((id: number) => ({ id }))
