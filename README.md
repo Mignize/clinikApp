@@ -15,3 +15,8 @@ Para instrucciones detalladas sobre cómo instalar y ejecutar cada parte del sis
 - [Instrucciones Frontend](./frontend/README.md)
 
 Cada README contiene los requisitos, pasos de instalación y comandos necesarios para correr el backend y el frontend de forma independiente.
+
+### Demo
+
+Puedes probar la aplicación en línea aquí:  
+[https://clinik-app.vercel.app/](https://clinik-app.vercel.app/)
